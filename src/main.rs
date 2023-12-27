@@ -24,27 +24,6 @@ enum Script {
     /// URL of a script in the form of a traditional `cargo` repository.
     #[doc = doc_warn_impermanence!()]
     Project(Url),
-    /// URL of a script in the form of a single file. Unlike a traditional cargo
-    /// project, a single file script has its `cargo` manifest (traditionally
-    /// within a `Cargo.toml` file) included as a module level ("inner block")
-    /// documentation comment of the form:
-    /// ```Rust
-    /// //! ```cargo
-    /// //! # no need for `[package]` level keys such as `name`, `version`, `edition`, etc.
-    /// //! [dependencies]
-    /// //! # list dependencies out as usual
-    /// //! ```
-    /// //! A Rust single-file script is invalid if it does not begin with some module level cargo You can then write further docs here and the
-    /// // actual code of the script begins here.
-    /// ```
-    ///
-    /// The above format was chosen in order to make compliance with the current
-    /// decisions around the unstable feature [`cargo
-    /// script`](https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#script) ([RFC#3502](https://github.com/rust-lang/rfcs/pull/3502))
-    /// as smooth as possible. We list out the manifest using inner line
-    /// comments for now, due to lack of [`rust-analyzer`](https://github.com/rust-lang/rust-analyzer/issues/15318) support for now.
-    #[doc = doc_warn_impermanence!()]
-    SingleFile(Url),
 }
 
 pub trait ScriptOutput {}
