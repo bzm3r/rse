@@ -4,9 +4,16 @@ use xshell::{cmd, Shell};
 // bpaf docs: https://docs.rs/bpaf/latest/bpaf/index.html
 // xshell docs: https://docs.rs/xshell/latest/xshell/index.html
 
-/// Template Rust CLI script.
+enum InputScript {
+    CargoProject,
+    SingleFile,
+    // TODO: support input from StdIn?
+    // Stdin,
+}
+
+/// CLI for the Rust Script Environment.
 #[derive(Bpaf, Debug, Clone)]
-struct Template {
+struct Cli {
     /// Example of an optional flag.
     #[bpaf(short, long)]
     opt: bool,
@@ -21,7 +28,7 @@ struct Template {
 }
 
 fn main() -> anyhow::Result<()> {
-    let opts = template().run();
+    let opts = cli().run();
     let greeting = if opts.opt { "goodbye" } else { "hello" };
     let thing = opts.pos.repeat(opts.arg.unwrap_or(1));
     let message = format!("{greeting} {thing}!");
