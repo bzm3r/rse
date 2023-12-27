@@ -4,13 +4,6 @@ use xshell::{cmd, Shell};
 // bpaf docs: https://docs.rs/bpaf/latest/bpaf/index.html
 // xshell docs: https://docs.rs/xshell/latest/xshell/index.html
 
-enum InputScript {
-    CargoProject,
-    SingleFile,
-    // TODO: support input from StdIn?
-    // Stdin,
-}
-
 /// CLI for the Rust Script Environment.
 #[derive(Bpaf, Debug, Clone)]
 struct Cli {
