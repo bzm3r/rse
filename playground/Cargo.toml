@@ -1,0 +1,20 @@
+[package]
+name = "playground"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "subcomms"
+path = "src/subcomm.rs"
+
+[dependencies]
+anyhow = "1.0.77"
+bpaf = { version = "0.9.8", features = [
+    "bright-color",
+    "autocomplete",
+    "docgen",
+    "derive",
+] }

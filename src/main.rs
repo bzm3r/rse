@@ -1,8 +1,9 @@
 use std::{borrow::Cow, collections::HashMap, path::PathBuf};
 
-use bpaf::{Bpaf, Parser};
+use bpaf::Bpaf;
 use url::Url;
-use xshell::{cmd, Shell};
+
+pub mod make;
 
 // bpaf docs: https://docs.rs/bpaf/latest/bpaf/index.html
 // xshell docs: https://docs.rs/xshell/latest/xshell/index.html
@@ -14,7 +15,7 @@ macro_rules! doc_warn_impermanence {
     }
 }
 
-enum Script {
+pub enum Script {
     /// Name of a script that is assumed to already exist either in:
     ///     * already built and cached ("instantiated") as a directory in the
     ///     scripting environment's cache.
@@ -31,9 +32,9 @@ pub trait ScriptOutput {}
 pub struct ScriptUrl {
     /// Note how `cargo-script` plans to store local instances of a cached
     /// script: https://github.com/rust-lang/cargo/issues/12207#issuecomment-1776089794
-    instance: Option<PathBuf>,
+    pub instance: Option<PathBuf>,
     /// A [`Url`] to the source code of the script.
-    source: Url,
+    pub source: Url,
 }
 
 /// This should use: https://doc.rust-lang.org/cargo/reference/registries.html
@@ -44,11 +45,11 @@ pub struct ScriptUrl {
 /// 1) https://doc.rust-lang.org/cargo/reference/running-a-registry.html
 ///     * in particular, see: https://github.com/rust-lang/cargo/wiki/Third-party-registries
 pub struct Registry {
-    table: HashMap<String, ScriptUrl>,
+    pub table: HashMap<String, ScriptUrl>,
 }
 
 impl Registry {
-    fn get(&self, name: &str) -> Option<bool> {
+    fn get(&self, _name: &str) -> Option<bool> {
         unimplemented!()
     }
 }
@@ -64,14 +65,14 @@ impl Registry {
     ///
     pub fn status<'a, HasName: Into<ScriptName<'a>>>(
         &self,
-        name: HasName,
+        _name: HasName,
     ) -> Status {
         unimplemented!()
     }
 
     pub fn instantiated<'a, HasName: Into<ScriptName<'a>>>(
         &self,
-        name: HasName,
+        _name: HasName,
     ) -> bool {
         unimplemented!()
     }
@@ -80,7 +81,7 @@ impl Registry {
 pub struct ScriptEnv {
     /// Path to where the environments dynamic library and script cache are stored.
     /// Default value: $CARGO_HOME.
-    path: PathBuf,
+    pub path: PathBuf,
     /// Map from the name of a script, to its URL.
     registry: Registry,
 }
@@ -92,9 +93,11 @@ impl Default for ScriptEnv {
 }
 
 impl ScriptEnv {
-    pub fn is_instantiated(&self, script: &Script) {}
+    pub fn is_instantiated(&self, _script: &Script) -> bool {
+        unimplemented!()
+    }
     pub fn run<O: ScriptOutput>(&self, script: &Script) -> anyhow::Result<O> {
-        if let Some(url) = self.registry.get(script.name()) {}
+        if let Some(_url) = self.registry.get(script.name()) {}
         unimplemented!()
     }
 }
@@ -105,29 +108,17 @@ impl Script {
     }
 }
 
-/// CLI for the Rust Script Environment.
-#[derive(Bpaf, Debug, Clone)]
-struct Cli {
-    /// Example of an optional flag.
-    #[bpaf(short, long)]
-    opt: bool,
-
-    /// Example of an optional argument.
-    #[bpaf(argument("OPTIONAL_ARG"), short, long)]
-    arg: Option<usize>,
-
-    /// Example of a positional argument.
-    #[bpaf(positional("POSITIONAL"))]
-    pos: String,
+#[derive(Debug, Clone, Bpaf)]
+#[bpaf(options)]
+pub enum Cli {
+    #[bpaf(command("make"))]
+    /// Make a script project.
+    Make,
 }
 
 fn main() -> anyhow::Result<()> {
     let opts = cli().run();
-    let greeting = if opts.opt { "goodbye" } else { "hello" };
-    let thing = opts.pos.repeat(opts.arg.unwrap_or(1));
-    let message = format!("{greeting} {thing}!");
-    let sh = Shell::new()?;
-    cmd!(sh, "echo \"{message}\"").run()?;
+    println!("{opts:?}");
 
     Ok(())
 }

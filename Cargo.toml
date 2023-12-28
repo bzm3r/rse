@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.77"
 bpaf = { version = "0.9.8", features = ["autocomplete", "docgen", "bright-color", "derive"] }
+cargo-http-registry = "0.1.5"
 url = "2.5.0"
 xshell = "0.2.5"
