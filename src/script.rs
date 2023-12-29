@@ -7,6 +7,9 @@ macro_rules! doc_warn_impermanence {
     }
 }
 
+// `cargo-script` will cache local instances of a script, in order to allow for
+// incremental rebuilding and other build related optimizations: https://github.com/rust-lang/cargo/issues/12207#issuecomment-1776089794
+
 pub enum Script {
     /// Name of a script that is assumed to already exist either in:
     ///     * already built and cached ("instantiated") as a directory in the
@@ -19,13 +22,10 @@ pub enum Script {
     Project(Url),
 }
 
-// `cargo-script` will cache local instances of a script, in order to allow for
-// incremental rebuilding and other build related optimizations: https://github.com/rust-lang/cargo/issues/12207#issuecomment-1776089794
-pub struct ScriptUrl {
-    pub instance: Option<PathBuf>,
-    /// A [`Url`] to the source code of the script.
-    pub source: Url,
+impl Script {
+    fn name(&self) -> &str {
+        unimplemented!()
+    }
 }
-
 
 pub trait ScriptOutput {}

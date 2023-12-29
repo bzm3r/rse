@@ -10,9 +10,6 @@ edition = "2021"
 name = "subcomms"
 path = "src/subcomms.rs"
 
-[[bin]]
-name = "registry"
-path = "src/registry.rs"
 
 [[bin]]
 name = "toy"
@@ -27,4 +24,3 @@ bpaf = { version = "0.9.8", features = [
     "derive",
 ] }
 cache = { version = "0.1.0", path = "../cache" }
-cargo-http-registry = "0.1.5"
