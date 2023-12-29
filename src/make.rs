@@ -7,7 +7,8 @@ use xshell::{cmd, Shell};
 
 /// Make a template Rust project for a shell script or CLI tool.
 #[derive(Bpaf, Debug, Clone)]
-struct MakeInterface {
+#[bpaf(command, generate(parse_make))]
+pub struct Make {
     /// Whether the project requires CLI functionality (if so, `clap` will be
     /// added to its Cargo.toml).
     #[bpaf(short, long)]
@@ -24,7 +25,7 @@ struct MakeInterface {
     script_name: String,
 }
 
-struct Templates {
+pub struct Templates {
     cli_main_rs: &'static str,
     shell_main_rs: &'static str,
     default_nix: fn(&str) -> String,
@@ -32,7 +33,7 @@ struct Templates {
     rustfmt_toml: &'static str,
 }
 
-const TEMPLATES: Templates = Templates {
+pub const TEMPLATES: Templates = Templates {
     cli_main_rs: include_str!("./make/template_cli.rs"),
     shell_main_rs: include_str!("./make/template_shell.rs"),
     default_nix: |script_name| {
@@ -44,7 +45,7 @@ const TEMPLATES: Templates = Templates {
 };
 
 pub fn make() -> anyhow::Result<()> {
-    let opts = make_interface().run();
+    let opts = parse_make().run();
     let script_name = opts.script_name;
 
     let sh = Shell::new()?;

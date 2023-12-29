@@ -1,6 +1,8 @@
 {
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
-        "./playground/Cargo.toml"
+        "./playground/Cargo.toml",
+        "./mini_rse/cache/Cargo.toml",
+        "./mini_rse/toy/Cargo.toml"
     ]
 }

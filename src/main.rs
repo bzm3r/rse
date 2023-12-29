@@ -1,41 +1,13 @@
 use std::{borrow::Cow, collections::HashMap, path::PathBuf};
 
 use bpaf::Bpaf;
+use make::Make;
 use url::Url;
 
 pub mod make;
+pub mod script;
+use make::make;
 
-// bpaf docs: https://docs.rs/bpaf/latest/bpaf/index.html
-// xshell docs: https://docs.rs/xshell/latest/xshell/index.html
-
-#[doc(hidden)]
-macro_rules! doc_warn_impermanence {
-    () => {
-        "\n**Warning:** this does not add the script to `/nix/store/rse/declared_scripts` and you are at risk of losing this information upon a system rebuilds! To declaratively add a script, you must list the scripts's URL in the `declaredScripts` option for the scripting environment's NixOS module."
-    }
-}
-
-pub enum Script {
-    /// Name of a script that is assumed to already exist either in:
-    ///     * already built and cached ("instantiated") as a directory in the
-    ///     scripting environment's cache.
-    ///     * associated with an uninstantiated URL in the `known_scripts` file,
-    ///     stored in the `/nix/store` location for this scripting environment.
-    Name(String),
-    /// URL of a script in the form of a traditional `cargo` repository.
-    #[doc = doc_warn_impermanence!()]
-    Project(Url),
-}
-
-pub trait ScriptOutput {}
-
-pub struct ScriptUrl {
-    /// Note how `cargo-script` plans to store local instances of a cached
-    /// script: https://github.com/rust-lang/cargo/issues/12207#issuecomment-1776089794
-    pub instance: Option<PathBuf>,
-    /// A [`Url`] to the source code of the script.
-    pub source: Url,
-}
 
 /// This should use: https://doc.rust-lang.org/cargo/reference/registries.html
 /// Should use `cargo`'s existing features as much as possible, to minimize
@@ -57,23 +29,28 @@ impl Registry {
 pub struct ScriptName<'a>(Cow<'a, str>);
 
 pub enum Status {
-    Declared { instantiated: bool },
-    Instantiated { known: bool },
+    /// The registry knows where to fetch this script from, but it has not been
+    /// instantiated on disk.
+    Declared,
+    /// The registry has previously instantiated this script on disk.
+    Instantiated,
+    /// The script is not known to the registry.
+    Unknown,
 }
 
 impl Registry {
-    ///
-    pub fn status<'a, HasName: Into<ScriptName<'a>>>(
-        &self,
-        _name: HasName,
-    ) -> Status {
+    /// Get the [`Status`] of a script in the registry.
+    pub fn status(&self, name: &str) -> Status {
         unimplemented!()
     }
 
-    pub fn instantiated<'a, HasName: Into<ScriptName<'a>>>(
-        &self,
-        _name: HasName,
-    ) -> bool {
+    /// Check if the script was previously instantiated in memory.
+    pub fn is_instantiated(&self, name: &str) -> bool {
+        unimplemented!()
+    }
+
+    /// Check if the registry knows about the script.
+    pub fn is_known(&self, name: &str) -> bool {
         unimplemented!()
     }
 }
@@ -93,9 +70,6 @@ impl Default for ScriptEnv {
 }
 
 impl ScriptEnv {
-    pub fn is_instantiated(&self, _script: &Script) -> bool {
-        unimplemented!()
-    }
     pub fn run<O: ScriptOutput>(&self, script: &Script) -> anyhow::Result<O> {
         if let Some(_url) = self.registry.get(script.name()) {}
         unimplemented!()
@@ -110,14 +84,14 @@ impl Script {
 
 #[derive(Debug, Clone, Bpaf)]
 #[bpaf(options)]
-pub enum Cli {
-    #[bpaf(command("make"))]
+pub enum Interface {
     /// Make a script project.
-    Make,
+    #[bpaf(command)]
+    Make(#[bpaf(external(make))] Make),
 }
 
 fn main() -> anyhow::Result<()> {
-    let opts = cli().run();
+    let opts = interface().run();
     println!("{opts:?}");
 
     Ok(())
